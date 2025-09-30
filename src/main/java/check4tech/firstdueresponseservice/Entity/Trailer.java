@@ -2,6 +2,9 @@ package check4tech.firstdueresponseservice.Entity;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import jakarta.persistence.*;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Size;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -12,7 +15,7 @@ import java.time.LocalDate;
 @AllArgsConstructor
 @NoArgsConstructor
 @Entity
-@Table(name = "VEHICLE")
+@Table(name = "TRAILER")
 @JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
 public class Trailer {
 
@@ -20,10 +23,19 @@ public class Trailer {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @ManyToOne
+    @NotBlank
+    @JoinColumn(name = "location_id", nullable = false)
+    private Location location;
+
     @Column(name = "make")
+    @NotBlank
+    @Size(min = 1, max = 50)
     private String make;
 
     @Column(name = "model")
+    @NotBlank
+    @Size(min = 1, max = 50)
     private String model;
 
     @Column(name = "dmv_inspection")
@@ -33,14 +45,31 @@ public class Trailer {
     private LocalDate registration;
 
     @Column(name = "is_currently_on_job")
-    private Boolean isCurrentlyOnJob;
+    private Boolean isCurrentlyOnJob = false;
 
     @Column(name = "vehicle_year")
+    @NotBlank
+    @Size(min = 4, max = 4)
     private String vehicleYear;
 
     @Column(name = "license_plate")
+    @Size(min = 1, max = 20)
     private String licensePlate;
 
     @Column(name = "vin_number")
+    @NotBlank
+    @Size(min = 1, max = 50)
     private String vinNumber;
+
+    @Column(name = "width")
+    @NotNull
+    private int width;
+
+    @Column(name = "length")
+    @NotNull
+    private int length;
+
+    @Column(name = "size")
+    private String size;
+
 }

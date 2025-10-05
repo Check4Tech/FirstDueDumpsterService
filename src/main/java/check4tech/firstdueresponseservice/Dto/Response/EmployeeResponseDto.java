@@ -17,6 +17,9 @@ public class EmployeeResponseDto {
     private String middleName;
     private String lastName;
     private String email;
+    private String username;
+    private String password;
+    private String role;
     private String ssn;
     private String licenseId;
     private String licenseType;

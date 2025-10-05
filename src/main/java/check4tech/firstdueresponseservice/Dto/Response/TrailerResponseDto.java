@@ -18,10 +18,8 @@ public class TrailerResponseDto {
     private LocalDate dmvInspection;
     private LocalDate registration;
     private Boolean isCurrentlyOnJob;
-    private String vehicleYear;
+    private String trailerYear;
     private String licensePlate;
     private String vinNumber;
-    private int width;
-    private int length;
-    private String size;
+    private Integer size;
 }

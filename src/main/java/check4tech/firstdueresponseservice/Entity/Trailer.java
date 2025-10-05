@@ -47,10 +47,10 @@ public class Trailer {
     @Column(name = "is_currently_on_job")
     private Boolean isCurrentlyOnJob = false;
 
-    @Column(name = "vehicle_year")
+    @Column(name = "trailer_year")
     @NotBlank
     @Size(min = 4, max = 4)
-    private String vehicleYear;
+    private String trailerYear;
 
     @Column(name = "license_plate")
     @Size(min = 1, max = 20)
@@ -61,15 +61,8 @@ public class Trailer {
     @Size(min = 1, max = 50)
     private String vinNumber;
 
-    @Column(name = "width")
-    @NotNull
-    private int width;
-
-    @Column(name = "length")
-    @NotNull
-    private int length;
-
     @Column(name = "size")
-    private String size;
+    @NotNull
+    private Integer size;
 
 }

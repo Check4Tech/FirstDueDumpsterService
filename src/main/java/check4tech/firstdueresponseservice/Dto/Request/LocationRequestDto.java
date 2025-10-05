@@ -14,4 +14,5 @@ public class LocationRequestDto {
     private String address;
     private String state;
     private String zipCode;
+    private boolean isInBusiness;
 }

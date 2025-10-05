@@ -5,6 +5,8 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.math.BigDecimal;
+
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
@@ -15,5 +17,6 @@ public class EquipmentResponseDto {
     private String serialNumber;
     private String warrantyExpiration;
     private int quantity;
+    private BigDecimal cost;
     private Integer restockAlert;
 }

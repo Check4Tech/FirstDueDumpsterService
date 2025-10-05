@@ -7,6 +7,8 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.math.BigDecimal;
+
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
@@ -24,6 +26,8 @@ public class EquipmentRequestDto {
 
     @NotNull(message = "Quantity is required")
     private int quantity;
+
+    private BigDecimal cost;
 
     @NotBlank(message = "Restock Alert is required")
     private Integer restockAlert;

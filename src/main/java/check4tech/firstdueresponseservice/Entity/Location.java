@@ -54,4 +54,7 @@ public class Location {
     @OneToMany(mappedBy = "location", cascade = CascadeType.ALL)
     private List<Equipment> equipment;
 
+    @Column(name = "is_in_business")
+    private boolean isInBusiness = false;
+
 }

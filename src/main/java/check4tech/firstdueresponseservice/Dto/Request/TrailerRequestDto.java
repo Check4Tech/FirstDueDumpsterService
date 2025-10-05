@@ -32,7 +32,7 @@ public class TrailerRequestDto {
     private Boolean isCurrentlyOnJob;
 
     @NotBlank(message = "Trailer year is required")
-    private String vehicleYear;
+    private String trailerYear;
 
     @NotBlank(message = "Trailer license plate is required")
     @Size(min = 1, max = 20)
@@ -41,11 +41,6 @@ public class TrailerRequestDto {
     @NotBlank(message = "Trailer Vin Number is required")
     private String vinNumber;
 
-    @NotNull(message = "Trailer width is required")
-    private int width;
-
-    @NotBlank(message = "Trailer length is required")
-    private int length;
-
-    private String size = width + " x " + length;
+    @NotNull(message = "Trailer Size is required")
+    private String size;
 }

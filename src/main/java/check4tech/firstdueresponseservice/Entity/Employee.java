@@ -27,7 +27,7 @@ public class Employee {
     @JoinColumn(name = "location_id", nullable = false)
     private Location location;
 
-    @Column(name = "first_name")
+    @Column(name = "first_name",  nullable = false)
     @NotBlank
     @Size(min = 1, max = 50)
     private String firstName;
@@ -36,7 +36,7 @@ public class Employee {
     @Size(min = 1, max = 50)
     private String middleName;
 
-    @Column(name = "last_name")
+    @Column(name = "last_name",  nullable = false)
     @NotBlank
     @Size(min = 1, max = 50)
     private String lastName;
@@ -45,6 +45,21 @@ public class Employee {
     @NotBlank
     @Size(min = 1, max = 100)
     private String email;
+
+    //Login related variables
+    @Column(name = "username", nullable = false, unique = true)
+    @NotBlank
+    @Size(min = 3, max = 50)
+    private String username;
+
+    @Column(name = "password", nullable = false)
+    @NotBlank
+    private String password;
+
+    @Enumerated(EnumType.STRING)
+    @Column(name = "role", nullable = false)
+    private Role role;
+    //End login related variables
 
     @Column(name = "ssn")
     private String ssn;
@@ -57,4 +72,8 @@ public class Employee {
 
     @Column(name = "license_expiration")
     private LocalDate licenseExpiration;
+
+    @Column(name = "isTerminated")
+    private Boolean isTerminated = false;
+    // Add warning system
 }

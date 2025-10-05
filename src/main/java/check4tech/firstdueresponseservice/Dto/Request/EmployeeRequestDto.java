@@ -31,8 +31,14 @@ public class EmployeeRequestDto {
     @NotBlank(message = "Email is required")
     private String email;
 
+    private String username;
+    private String password;
+    private String role;
+
     private String ssn;
     private String licenseId;
     private String licenseType;
     private LocalDate licenseExpiration;
+
+    private Boolean isTerminated;
 }

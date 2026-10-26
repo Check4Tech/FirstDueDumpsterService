@@ -23,6 +23,8 @@ public class Employee {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    // Location lists its employees, vehicles etc.; serializing them back out recursed until Jackson gave up.
+    @com.fasterxml.jackson.annotation.JsonIgnoreProperties({"employee", "vehicle", "trailer", "equipment"})
     @ManyToOne
     @JoinColumn(name = "location_id", nullable = false)
     private Location location;
@@ -52,6 +54,8 @@ public class Employee {
     @Size(min = 3, max = 50)
     private String username;
 
+    @com.fasterxml.jackson.annotation.JsonProperty(access = com.fasterxml.jackson.annotation.JsonProperty.Access.WRITE_ONLY)
+
     @Column(name = "password", nullable = false)
     @NotBlank
     private String password;
@@ -61,8 +65,12 @@ public class Employee {
     private Role role;
     //End login related variables
 
+    @com.fasterxml.jackson.annotation.JsonProperty(access = com.fasterxml.jackson.annotation.JsonProperty.Access.WRITE_ONLY)
+
     @Column(name = "ssn")
     private String ssn;
+
+    @com.fasterxml.jackson.annotation.JsonProperty(access = com.fasterxml.jackson.annotation.JsonProperty.Access.WRITE_ONLY)
 
     @Column(name = "license_id")
     private String licenseId;

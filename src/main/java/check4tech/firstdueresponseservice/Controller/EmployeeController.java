@@ -1,5 +1,7 @@
 package check4tech.firstdueresponseservice.Controller;
 
+
+import org.springframework.security.access.prepost.PreAuthorize;
 import check4tech.firstdueresponseservice.Dto.Request.EmployeeRequestDto;
 import check4tech.firstdueresponseservice.Dto.Response.EmployeeResponseDto;
 import check4tech.firstdueresponseservice.Entity.Employee;
@@ -22,6 +24,7 @@ public class EmployeeController {
     // ==========================
     // CREATE
     // ==========================
+    @PreAuthorize("hasRole('ADMIN')")
     @PostMapping
     public ResponseEntity<Employee> createEmployee(@RequestBody EmployeeRequestDto request,
                                                    @RequestParam Long locationId) {
@@ -32,6 +35,7 @@ public class EmployeeController {
     // ==========================
     // UPDATE
     // ==========================
+    @PreAuthorize("hasRole('ADMIN')")
     @PutMapping("/location/{locationId}/employee/{id}")
     public ResponseEntity<Employee> updateEmployee(@PathVariable Long locationId,
                                                    @PathVariable Long id,
@@ -51,6 +55,7 @@ public class EmployeeController {
     // ==========================
     // DELETE (soft delete)
     // ==========================
+    @PreAuthorize("hasRole('ADMIN')")
     @DeleteMapping("/{id}")
     public ResponseEntity<String> deleteEmployee(@PathVariable Long id) {
         employeeService.deleteEmployee(id);
@@ -62,16 +67,17 @@ public class EmployeeController {
     // ==========================
     @GetMapping("/location/{locationId}/employee/{id}")
     public ResponseEntity<EmployeeResponseDto> getEmployeeById(@PathVariable Long id, @PathVariable Long locationId) {
-        return ResponseEntity.ok(employeeService.getEmployeeById(id, locationId));
+        return ResponseEntity.ok(employeeService.getEmployeeById(locationId, id));
     }
 
     @GetMapping("/location/{locationId}/all")
-    public ResponseEntity<List<EmployeeResponseDto>> getAllEmployees(Long locationId) {
+    public ResponseEntity<List<EmployeeResponseDto>> getAllEmployees(@PathVariable Long locationId) {
         return ResponseEntity.ok(employeeService.getAllEmployeesByIsNotTerminated(locationId));
     }
 
+    @PreAuthorize("hasRole('ADMIN')")
     @GetMapping("/terminated")
-    public ResponseEntity<List<EmployeeResponseDto>> getTerminatedEmployees(Long locationId) {
+    public ResponseEntity<List<EmployeeResponseDto>> getTerminatedEmployees(@RequestParam Long locationId) {
         return ResponseEntity.ok(employeeService.getAllEmployeesByIsTerminated(locationId));
     }
 
@@ -86,12 +92,14 @@ public class EmployeeController {
     // ==========================
     // EMAIL ALERTS
     // ==========================
+    @PreAuthorize("hasRole('ADMIN')")
     @PostMapping("/send-test-email")
     public ResponseEntity<String> sendTestEmail(@RequestParam String to) {
         employeeService.sendTestEmail(to);
         return ResponseEntity.ok("Test email sent to " + to);
     }
 
+    @PreAuthorize("hasRole('ADMIN')")
     @PostMapping("/alert-expiring-license")
     public ResponseEntity<String> alertExpiringLicense() {
         employeeService.alertExpiringLicense();

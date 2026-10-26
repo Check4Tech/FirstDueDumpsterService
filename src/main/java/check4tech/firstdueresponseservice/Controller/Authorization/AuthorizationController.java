@@ -1,37 +1,26 @@
 package check4tech.firstdueresponseservice.Controller.Authorization;
 
 import check4tech.firstdueresponseservice.Dto.Request.LoginRequestDto;
-import check4tech.firstdueresponseservice.Dto.Response.EmployeeResponseDto;
-import check4tech.firstdueresponseservice.Service.EmployeeService;
+import check4tech.firstdueresponseservice.Dto.Response.LoginResponseDto;
+import check4tech.firstdueresponseservice.Service.AuthService;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/auth")
 public class AuthorizationController {
 
-    private final EmployeeService employeeService;
+    private final AuthService authService;
 
-    public AuthorizationController(EmployeeService employeeService) {
-        this.employeeService = employeeService;
+    public AuthorizationController(AuthService authService) {
+        this.authService = authService;
     }
 
+    /** Returns a bearer token. Send it as "Authorization: Bearer ..." on every other request. */
     @PostMapping("/location/{locationId}/login")
-    public ResponseEntity<String> login(
+    public ResponseEntity<LoginResponseDto> login(
             @PathVariable Long locationId,
             @RequestBody LoginRequestDto request) {
-
-        // throws if username not found
-        EmployeeResponseDto employeeDto = employeeService.getEmployeeByUsernameAndLocation(locationId, request.getUsername());
-
-        // check password
-        BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
-        if (passwordEncoder.matches(request.getPassword(), employeeDto.getPassword())) {
-            return ResponseEntity.ok("Login successful!");
-        } else {
-            throw new RuntimeException("Invalid username or password");
-        }
+        return ResponseEntity.ok(authService.login(locationId, request));
     }
-
 }

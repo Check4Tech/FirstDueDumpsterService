@@ -1,5 +1,7 @@
 package check4tech.firstdueresponseservice.Controller;
 
+
+import org.springframework.security.access.prepost.PreAuthorize;
 import check4tech.firstdueresponseservice.Dto.Request.VehicleRequestDto;
 import check4tech.firstdueresponseservice.Dto.Response.VehicleResponseDto;
 import check4tech.firstdueresponseservice.Service.VehicleService;
@@ -22,12 +24,14 @@ public class VehicleController {
     // CREATE / UPDATE / DELETE
     // =======================
 
+    @PreAuthorize("hasRole('ADMIN')")
     @PostMapping
     public ResponseEntity<VehicleResponseDto> createVehicle(@RequestBody VehicleRequestDto request) {
         VehicleResponseDto response = vehicleService.toResponse(vehicleService.createVehicle(request));
         return ResponseEntity.ok(response);
     }
 
+    @PreAuthorize("hasRole('ADMIN')")
     @PutMapping("/{id}")
     public ResponseEntity<VehicleResponseDto> updateVehicle(@PathVariable Long id,
                                                             @RequestBody VehicleRequestDto request) {
@@ -35,6 +39,7 @@ public class VehicleController {
         return ResponseEntity.ok(response);
     }
 
+    @PreAuthorize("hasRole('ADMIN')")
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteVehicle(@PathVariable Long id) {
         vehicleService.deleteVehicle(id);

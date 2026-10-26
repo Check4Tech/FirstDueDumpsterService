@@ -1,5 +1,7 @@
 package check4tech.firstdueresponseservice.Service;
 
+
+import check4tech.firstdueresponseservice.security.LocationAccess;
 import check4tech.firstdueresponseservice.Dto.Request.EmployeeRequestDto;
 import check4tech.firstdueresponseservice.Dto.Response.EmployeeResponseDto;
 import check4tech.firstdueresponseservice.Entity.Employee;
@@ -71,16 +73,41 @@ public class EmployeeService {
         String username = generateUsername(locationId, request.getFirstName(), request.getLastName());
         employee.setUsername(username);
 
-        String defaultPassword = "Welcome!";
+        String tempPassword = generateTempPassword();
         BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
-        employee.setPassword(passwordEncoder.encode(defaultPassword));
+        employee.setPassword(passwordEncoder.encode(tempPassword));
+
+        LocationAccess.requireOwnLocation(locationId);
 
         Location location = locationRepository.findById(locationId)
                 .orElseThrow(() -> new RuntimeException("Location not found"));
 
         employee.setLocation(location);
 
-        return employeeRepository.save(employee);
+        Employee saved = employeeRepository.save(employee);
+        sendTempPasswordEmail(saved, tempPassword);
+        return saved;
+    }
+
+    private static final java.security.SecureRandom SECURE_RANDOM = new java.security.SecureRandom();
+
+    private static String generateTempPassword() {
+        String charset = "abcdefghijkmnopqrstuvwxyzABCDEFGHJKLMNPQRSTUVWXYZ23456789!@#$%";
+        StringBuilder sb = new StringBuilder();
+        for (int i = 0; i < 14; i++) {
+            sb.append(charset.charAt(SECURE_RANDOM.nextInt(charset.length())));
+        }
+        return sb.toString();
+    }
+
+    private void sendTempPasswordEmail(Employee employee, String tempPassword) {
+        SimpleMailMessage message = new SimpleMailMessage();
+        message.setTo(employee.getEmail());
+        message.setSubject("Your account");
+        message.setText("Hello " + employee.getFirstName() + ",\n\nYour username is " + employee.getUsername()
+                + " and your temporary password is " + tempPassword
+                + "\n\nPlease sign in and change it right away.");
+        mailSender.send(message);
     }
 
     public Employee updateEmployee(Long locationId, EmployeeRequestDto request, Long employeeId) {
@@ -112,6 +139,7 @@ public class EmployeeService {
         if (request.getRole() != null) employee.setRole(Role.valueOf(request.getRole().toUpperCase()));
 
         if (request.getLocationId() != null) {
+            LocationAccess.requireOwnLocation(request.getLocationId());
             Location location = locationRepository.findById(request.getLocationId())
                     .orElseThrow(() -> new RuntimeException("Location not found"));
             employee.setLocation(location);
@@ -128,9 +156,24 @@ public class EmployeeService {
 
     @Transactional
     public void updatePassword(Long locationId, String usernameOrEmail, String newPassword) {
-        Employee employee = employeeRepository.findByLocation_IdAndUsernameContainingIgnoreCase(locationId, usernameOrEmail)
-                .or(() -> employeeRepository.findByEmail(usernameOrEmail))
-                .orElseThrow(() -> new RuntimeException("Employee not found"));
+        LocationAccess.requireOwnLocation(locationId);
+        if (newPassword == null || newPassword.length() < 10 || newPassword.length() > 100
+                || "Welcome!".equalsIgnoreCase(newPassword)) {
+            throw new org.springframework.web.server.ResponseStatusException(
+                    org.springframework.http.HttpStatus.BAD_REQUEST, "Password must be 10 to 100 characters.");
+        }
+        String target = usernameOrEmail == null ? "" : usernameOrEmail.trim();
+        Employee employee = employeeRepository.findByUsername(target)
+                .or(() -> employeeRepository.findByUsername(target.toUpperCase()))
+                .or(() -> employeeRepository.findByEmail(target))
+                .filter(e -> e.getLocation() != null && locationId.equals(e.getLocation().getId()))
+                .orElseThrow(() -> new org.springframework.web.server.ResponseStatusException(
+                        org.springframework.http.HttpStatus.NOT_FOUND, "Employee not found"));
+
+        if (!LocationAccess.isAdmin() && !employee.getId().equals(LocationAccess.currentEmployeeId())) {
+            throw new org.springframework.web.server.ResponseStatusException(
+                    org.springframework.http.HttpStatus.FORBIDDEN, "Not allowed.");
+        }
 
         BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
         employee.setPassword(passwordEncoder.encode(newPassword));
@@ -166,6 +209,10 @@ public class EmployeeService {
         return decrypted;
     }
 
+    private boolean canSeePrivate(Employee employee) {
+        return LocationAccess.isAdmin() || employee.getId().equals(LocationAccess.currentEmployeeId());
+    }
+
     public EmployeeResponseDto toResponse(Employee employee) {
         if (employee == null) return null;
 
@@ -175,8 +222,8 @@ public class EmployeeService {
                 .middleName(employee.getMiddleName())
                 .lastName(employee.getLastName())
                 .email(employee.getEmail())
-                .ssn(employee.getSsn() != null ? getLast4OfSsn(employee.getSsn()) : null)
-                .licenseId(employee.getLicenseId() != null ? encryptionUtil.decrypt(employee.getLicenseId()) : null)
+                .ssn(canSeePrivate(employee) && employee.getSsn() != null ? getLast4OfSsn(employee.getSsn()) : null)
+                .licenseId(canSeePrivate(employee) && employee.getLicenseId() != null ? encryptionUtil.decrypt(employee.getLicenseId()) : null)
                 .licenseType(employee.getLicenseType())
                 .licenseExpiration(employee.getLicenseExpiration())
                 .build();
@@ -225,6 +272,13 @@ public class EmployeeService {
     //==========================
 
     public void sendTestEmail(String to) {
+        boolean known = employeeRepository.findByEmail(to)
+                .filter(e -> e.getLocation() != null && e.getLocation().getId().equals(LocationAccess.currentLocationId()))
+                .isPresent();
+        if (!known) {
+            throw new org.springframework.web.server.ResponseStatusException(
+                    org.springframework.http.HttpStatus.BAD_REQUEST, "Recipient must be an employee of your location.");
+        }
         SimpleMailMessage message = new SimpleMailMessage();
         message.setTo(to);
         message.setSubject("Test Email");

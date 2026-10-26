@@ -1,5 +1,7 @@
 package check4tech.firstdueresponseservice.Controller;
 
+
+import org.springframework.security.access.prepost.PreAuthorize;
 import check4tech.firstdueresponseservice.Dto.Request.TrailerRequestDto;
 import check4tech.firstdueresponseservice.Dto.Response.TrailerResponseDto;
 import check4tech.firstdueresponseservice.Service.TrailerService;
@@ -19,6 +21,7 @@ public class TrailerController {
         this.trailerService = trailerService;
     }
 
+    @PreAuthorize("hasRole('ADMIN')")
     @PostMapping("/{locationId}")
     public ResponseEntity<TrailerResponseDto> createTrailer(@RequestBody TrailerRequestDto request,
                                                             @PathVariable Long locationId) {
@@ -28,6 +31,7 @@ public class TrailerController {
         return new ResponseEntity<>(response, HttpStatus.CREATED);
     }
 
+    @PreAuthorize("hasRole('ADMIN')")
     @PutMapping("/{id}")
     public ResponseEntity<TrailerResponseDto> updateTrailer(@RequestBody TrailerRequestDto request,
                                                             @PathVariable Long id) {
@@ -37,6 +41,7 @@ public class TrailerController {
         return ResponseEntity.ok(response);
     }
 
+    @PreAuthorize("hasRole('ADMIN')")
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteTrailer(@PathVariable Long id) {
         trailerService.deleteTrailer(id);

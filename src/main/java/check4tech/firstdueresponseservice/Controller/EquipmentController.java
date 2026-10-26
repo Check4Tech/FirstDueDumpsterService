@@ -1,5 +1,7 @@
 package check4tech.firstdueresponseservice.Controller;
 
+
+import org.springframework.security.access.prepost.PreAuthorize;
 import check4tech.firstdueresponseservice.Dto.Request.EquipmentRequestDto;
 import check4tech.firstdueresponseservice.Dto.Response.EquipmentResponseDto;
 import check4tech.firstdueresponseservice.Service.EquipmentService;
@@ -18,17 +20,20 @@ public class EquipmentController {
         this.equipmentService = equipmentService;
     }
 
+    @PreAuthorize("hasRole('ADMIN')")
     @PostMapping
     public ResponseEntity<EquipmentResponseDto> createEquipment(@RequestBody EquipmentRequestDto request) {
         return ResponseEntity.ok(equipmentService.toResponse(equipmentService.createEquipment(request)));
     }
 
+    @PreAuthorize("hasRole('ADMIN')")
     @PutMapping("/{id}")
     public ResponseEntity<EquipmentResponseDto> updateEquipment(@PathVariable Long id,
                                                                 @RequestBody EquipmentRequestDto request) {
         return ResponseEntity.ok(equipmentService.toResponse(equipmentService.updateEquipment(request, id)));
     }
 
+    @PreAuthorize("hasRole('ADMIN')")
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteEquipment(@PathVariable Long id) {
         equipmentService.deleteEquipment(id);

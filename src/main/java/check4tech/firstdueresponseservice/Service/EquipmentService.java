@@ -1,5 +1,7 @@
 package check4tech.firstdueresponseservice.Service;
 
+
+import check4tech.firstdueresponseservice.security.LocationAccess;
 import check4tech.firstdueresponseservice.Dto.Request.EquipmentRequestDto;
 import check4tech.firstdueresponseservice.Dto.Response.EquipmentResponseDto;
 import check4tech.firstdueresponseservice.Entity.Equipment;
@@ -40,6 +42,8 @@ public class EquipmentService {
     public Equipment createEquipment(EquipmentRequestDto request) {
         Equipment equipment = buildEquipment(request);
 
+        LocationAccess.requireOwnLocation(request.getLocationId());
+
         Location location = locationRepository.findById(request.getLocationId())
                 .orElseThrow(() -> new RuntimeException("Location not found"));
 
@@ -60,6 +64,7 @@ public class EquipmentService {
         equipment.setRestockAlert(request.getRestockAlert());
 
         if (request.getLocationId() != null) {
+            LocationAccess.requireOwnLocation(request.getLocationId());
             Location location = locationRepository.findById(request.getLocationId())
                     .orElseThrow(() -> new RuntimeException("Location not found"));
             equipment.setLocation(location);

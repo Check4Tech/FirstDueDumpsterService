@@ -1,5 +1,7 @@
 package check4tech.firstdueresponseservice.Service;
 
+
+import check4tech.firstdueresponseservice.security.LocationAccess;
 import check4tech.firstdueresponseservice.Dto.Request.VehicleRequestDto;
 import check4tech.firstdueresponseservice.Dto.Response.VehicleResponseDto;
 import check4tech.firstdueresponseservice.Entity.Location;
@@ -43,6 +45,8 @@ public class VehicleService {
     public Vehicle createVehicle(VehicleRequestDto request) {
         Vehicle vehicle = buildVehicle();
 
+        LocationAccess.requireOwnLocation(request.getLocationId());
+
         Location location = locationRepository.findById(request.getLocationId())
                 .orElseThrow(() -> new RuntimeException("Location not found"));
 
@@ -65,6 +69,7 @@ public class VehicleService {
         vehicle.setMileage(request.getMileage());
 
         if (request.getLocationId() != null) {
+            LocationAccess.requireOwnLocation(request.getLocationId());
             Location location = locationRepository.findById(request.getLocationId())
                     .orElseThrow(() -> new RuntimeException("Location not found"));
 

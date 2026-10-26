@@ -1,5 +1,7 @@
 package check4tech.firstdueresponseservice.Service;
 
+
+import check4tech.firstdueresponseservice.security.LocationAccess;
 import check4tech.firstdueresponseservice.Dto.Request.TrailerRequestDto;
 import check4tech.firstdueresponseservice.Dto.Response.TrailerResponseDto;
 import check4tech.firstdueresponseservice.Entity.Location;
@@ -39,6 +41,8 @@ public class TrailerService {
     public Trailer createTrailer(TrailerRequestDto request, Long locationId) {
         Trailer trailer = buildTrailer(request);
 
+        LocationAccess.requireOwnLocation(locationId);
+
         Location location = locationRepository.findById(locationId)
                 .orElseThrow(() -> new RuntimeException("Location not found"));
 
@@ -60,6 +64,7 @@ public class TrailerService {
         trailer.setVinNumber(request.getVinNumber());
 
         if (request.getLocationId() != null) {
+            LocationAccess.requireOwnLocation(request.getLocationId());
             Location location = locationRepository.findById(request.getLocationId())
                     .orElseThrow(() -> new RuntimeException("Location not found"));
             trailer.setLocation(location);

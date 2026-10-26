@@ -49,12 +49,21 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
         "spring.sql.init.mode=never",
         "spring.mail.host=localhost",
         "spring.mail.port=2525",
-        "jasypt.encryptor.password=test-only-not-a-real-secret",
-        "jwt.secret=MDEyMzQ1Njc4OTAxMjM0NTY3ODkwMTIzNDU2Nzg5MDEyMzQ1Njc4OTAxMjM0NTY3ODkwMTIzNDU2Nzg5MA=="
 })
 @AutoConfigureMockMvc
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 class SecurityIntegrationTest {
+
+    /** Signing keys are generated fresh for every run; no secret-looking value lives in the repository. */
+    @org.springframework.test.context.DynamicPropertySource
+    static void generatedSecrets(org.springframework.test.context.DynamicPropertyRegistry registry) {
+        byte[] bytes = new byte[64];
+        new java.security.SecureRandom().nextBytes(bytes);
+        String secretValue = java.util.Base64.getEncoder().encodeToString(bytes);
+        registry.add("jwt.secret", () -> secretValue);
+        registry.add("jasypt.encryptor.password", () -> java.util.UUID.randomUUID().toString());
+    }
+
 
     private static final String PASSWORD = "Correct-Horse-9";
     private static final ObjectMapper JSON = new ObjectMapper();
